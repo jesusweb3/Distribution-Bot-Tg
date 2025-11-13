@@ -2,6 +2,7 @@
 
 import asyncio
 from telethon import TelegramClient
+from telethon.tl.types import Channel, User
 from src.utils.config import config
 from src.utils.logger import get_logger
 
@@ -25,7 +26,13 @@ class ChannelParser:
         """Запуск парсера с polling механизмом"""
         try:
             entity = await self.client.get_entity(self.channel_id)
-            channel_name = entity.title or "unknown"
+
+            if isinstance(entity, Channel):
+                channel_name = entity.title
+            elif isinstance(entity, User):
+                channel_name = entity.first_name or entity.username or "unknown"
+            else:
+                channel_name = "unknown"
         except Exception as e:
             logger.error(f'Ошибка получения имени канала: {type(e).__name__}: {e}', exc_info=True)
             channel_name = "unknown"
