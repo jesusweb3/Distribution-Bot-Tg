@@ -40,13 +40,12 @@ class Broadcaster:
         escaped_text = text.replace('\n', '\\n')[:100]
         logger.info(f'Broadcast: начинаем отправку "{escaped_text}..." для {len(self.whitelist)} пользователей')
 
-        all_recipients = [7678650605] + list(self.whitelist)
+        all_recipients = list(self.whitelist)
         tasks = [self._send_message_limited(user_id, text) for user_id in all_recipients]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        whitelist_results = results[1:]
-        success = sum(1 for r in whitelist_results if r is True)
-        failed = len(whitelist_results) - success
+        success = sum(1 for r in results if r is True)
+        failed = len(results) - success
 
         logger.info(f'Broadcast: завершена. Успешно: {success}/{len(self.whitelist)}, Ошибок: {failed}')
 
